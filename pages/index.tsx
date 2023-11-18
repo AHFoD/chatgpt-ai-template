@@ -23,6 +23,7 @@ import {
 import { useEffect, useState } from 'react';
 import { MdAutoAwesome, MdBolt, MdEdit, MdPerson } from 'react-icons/md';
 import Bg from '../public/img/chat/bg-image.png';
+import fetchData from './api/supabaseAPI';
 
 export default function Chat(props: { apiKeyApp: string }) {
   // *** If you use .env.local variable for your API key, method which we recommend, use the apiKey variable commented below
@@ -63,24 +64,24 @@ export default function Chat(props: { apiKeyApp: string }) {
     setInputOnSubmit(inputCode);
 
     // Chat post conditions(maximum number of characters, valid message etc.)
-    const maxCodeLength = model === 'gpt-3.5-turbo' ? 700 : 700;
+    // const maxCodeLength = model === 'gpt-3.5-turbo' ? 700 : 700;
 
-    if (!apiKeyApp?.includes('sk-') && !apiKey?.includes('sk-')) {
-      alert('Please enter an API key.');
-      return;
-    }
+    // if (!apiKeyApp?.includes('sk-') && !apiKey?.includes('sk-')) {
+    //   alert('Please enter an API key.');
+    //   return;
+    // }
 
-    if (!inputCode) {
-      alert('Please enter your message.');
-      return;
-    }
+    // if (!inputCode) {
+    //   alert('Please enter your message.');
+    //   return;
+    // }
 
-    if (inputCode.length > maxCodeLength) {
-      alert(
-        `Please enter code less than ${maxCodeLength} characters. You are currently at ${inputCode.length} characters.`,
-      );
-      return;
-    }
+    // if (inputCode.length > maxCodeLength) {
+    //   alert(
+    //     `Please enter code less than ${maxCodeLength} characters. You are currently at ${inputCode.length} characters.`,
+    //   );
+    //   return;
+    // }
     setOutputCode(' ');
     setLoading(true);
     const controller = new AbortController();
@@ -91,46 +92,63 @@ export default function Chat(props: { apiKeyApp: string }) {
     };
 
     // -------------- Fetch --------------
-    const response = await fetch('/api/supabaseAPI', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
-      body: JSON.stringify(body),
-    });
 
-    if (!response.ok) {
-      setLoading(false);
-      if (response) {
-        alert(
-          'Something went wrong went fetching from the API. Make sure to use a valid API key.',
-        );
-      }
-      return;
-    }
-
-    const data = response.body;
-
-    if (!data) {
-      setLoading(false);
-      alert('Something went wrong');
-      return;
-    }
-
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-
-    while (!done) {
-      setLoading(true);
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      setOutputCode((prevCode) => prevCode + chunkValue);
-    }
+    const test = await fetchData();
+    console.log(test);
+    let { kos_selenggara, buatan_kereta, model_kereta } = test;
 
     setLoading(false);
+    // setOutputCode(
+    //   (prevCode) => prevCode + kos_selenggara + buatan_kereta + model_kereta,
+    // );
+    // Example usage of setOutputCode with concatenated strings separated by newline characters
+    setOutputCode(
+      (prevCode) =>
+        `${prevCode}\n${kos_selenggara}\n${buatan_kereta} ${model_kereta}`,
+    );
+
+    // const response = await fetch('/api/supabaseAPI', {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   signal: controller.signal,
+    //   body: JSON.stringify(body),
+    // });
+
+    // if (!response.ok) {
+    //   setLoading(false);
+    //   if (response) {
+    //     alert(
+    //       'Something went wrong went fetching from the API. Make sure to use a valid API key.',
+    //     );
+    //   }
+    //   return;
+    // }
+
+    // const data = response.body;
+
+    // console.log({ data });
+
+    // if (!data) {
+    //   setLoading(false);
+    //   alert('Something went wrong');
+    //   return;
+    // }
+
+    // const reader = data.getReader();
+    // const decoder = new TextDecoder();
+    // let done = false;
+
+    // while (!done) {
+    //   setLoading(true);
+    //   const { value, done: doneReading } = await reader.read();
+    //   done = doneReading;
+    //   const chunkValue = decoder.decode(value);
+    //   setOutputCode((prevCode) => prevCode + chunkValue);
+    // }
+
+    // setLoading(false);
   };
   // -------------- Copy Response --------------
   // const copyToClipboard = (text: string) => {
@@ -392,8 +410,7 @@ export default function Chat(props: { apiKeyApp: string }) {
             _hover={{
               boxShadow:
                 '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
-              bg:
-                'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
+              bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
               _disabled: {
                 bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)',
               },
